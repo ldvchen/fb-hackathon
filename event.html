@@ -20,18 +20,49 @@ td {
 th.likes {
   padding-right: 20px;
 }
+
+span.autoRefreshButton {
+  background-color: red;
+  border-radius: 5px;
+  color: #FFF;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.autoRefreshButton {
+  float: right;
+}
+
+.autoRefreshButton.started {
+  background-color: #005207;
+}
+
+.autoRefreshButton .running,
+.autoRefreshButton.started .stopped {
+  display: none;
+}
+
+.autoRefreshButton .stopped,
+.autoRefreshButton.started .running {
+  display: block;
+}
 </style>
 
 <div id="container"> 
 <form class="wufoo">
 
 <div class="info">
+  <span class="autoRefreshButton started">
+    <span class="running"><span class="count" /></span></span>
+    <span class="stopped">Refresh Off</span>
+  </span>
   <h2><a href="http://www.facebook.com/camphackathon">Facebook Camp Hackathon</a></h2>
   <div>
     Hacks for <a href="/{{ eid }}/event">{{ event.name }}</a>
     -
     <a href="/{{ eid }}/submit">Submit Your Hack</a>
   </div>
+  <br clear="all" />
 </div>
 
 <table>
@@ -101,6 +132,42 @@ $(function() {
       this.style.visibility = "hidden";
     });
   });
+
+  // Auto-refresh goodness.
+  var
+    autoRefresh = false,
+    autoRefreshButton = $('.autoRefreshButton'),
+    timer = null,
+    TOTAL_COUNT = 10, // seconds
+    TICK_RATE = 1;    // seconds
+
+  function startItMaybe() {
+    if (autoRefreshButton.hasClass('started') && !timer) {
+      countdown = TOTAL_COUNT;
+      autoRefreshButton.find('.count').html('In '+countdown).show();
+      timer = setInterval(function() {
+        if (countdown <= 1) {
+	  clearInterval(timer);
+	  autoRefreshButton.find('.count').html('refreshing...').show();
+          window.location.reload();
+          return;
+	}
+	countdown--;
+	autoRefreshButton.find('.count').html('In '+countdown).show();
+      }, TICK_RATE * 1000);
+    } else if (timer) {
+      clearInterval(timer);
+      timer = null;		    
+      autoRefreshButton.find('.count').hide();
+    }
+  }
+
+  autoRefreshButton.bind('click', function() {
+    autoRefreshButton.toggleClass('started');
+    startItMaybe();
+  });
+
+  startItMaybe();
 });
 </script>
 <script src="static/jquery.dataTables.min.js"></script>
