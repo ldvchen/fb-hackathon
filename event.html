@@ -145,16 +145,17 @@ $(function() {
     if (autoRefreshButton.hasClass('started') && !timer) {
       countdown = TOTAL_COUNT;
       autoRefreshButton.find('.count').html('In '+countdown).show();
-      timer = setInterval(function() {
-        if (countdown <= 1) {
-	  clearInterval(timer);
-	  autoRefreshButton.find('.count').html('refreshing...').show();
-          window.location.reload();
-          return;
-	}
-	countdown--;
-	autoRefreshButton.find('.count').html('In '+countdown).show();
-      }, TICK_RATE * 1000);
+      timer = setInterval(
+        function() {
+          if (countdown <= 1) {
+            clearInterval(timer);
+            autoRefreshButton.find('.count').html('refreshing...').show();
+            window.location.reload();
+            return;
+          } 
+          countdown--;
+          autoRefreshButton.find('.count').html('In '+countdown).show();
+        }, TICK_RATE * 1000);
     } else if (timer) {
       clearInterval(timer);
       timer = null;		    
